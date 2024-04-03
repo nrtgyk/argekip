@@ -1,18 +1,12 @@
 from bs4 import BeautifulSoup as bs
 import requests
+
+
 #  9780807047408 white fragility isbn
 """
 isbn = input("ISBN num girin: ")
 URL = 'https://www.amazon.com/s?k={isbn}'
-URL = 'https://www.amazon.com/s?k={9780807047408}'
-headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'}
 
-sayfa = requests.get(URL, headers=headers)
-soup = bs(sayfa.content,'xml.parser')
-fiyatlar = soup.find_all('span', {'class':'a-price-whole'})
-yazar=soup.find_all('div',{'class': 'a-row'})
-#print(fiyatlar)
-print(yazar)
 """
 
 # ISBN numarasını kullanarak kitap bilgilerini alın
@@ -20,23 +14,65 @@ isbn=input("ISBN numaras girin:")
 
 url = f'https://www.amazon.com/s?k={isbn}'
     
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
     
     
-response = requests.get(url, headers=headers)
+response = requests.get(url, headers=header)
+#if response.status_code != 200:
+    #print(f"Error in getting webpage: {url}")
     
-soup = bs(response.text, 'lxml')
-            # Kitap başlığını alma
-title_element = soup.find('span', {'class': 'a-size-medium'})
-title = title_element.text.strip() if title_element else "Bilgi Bulunamadı"
-            # Yazar bilgisini alma
-author_element = soup.find('div', {'class': 'a-row'})
-author = author_element.text.strip() if author_element else "Bilgi Bulunamadı"
-            # Fiyat bilgisini alma
-price_element = soup.find('span', {'class': 'a-price'})
-price = price_element.text.strip() if price_element else "Bilgi Bulunamadı"
+    
+soup = bs(response.text, features='lxml')
 
-            # XML formatında bilgileri oluşturma
-xml_data = f"<book><title>{title}</title>\n<author>{author}</author>\n<price>{price}</price></book>"
+first_product_tag = soup.find('div', {'class': 'a-product'})  # Örnek bir sınıf kullanıldı, gerçek HTML yapısına göre ayarlayın
     
-print(xml_data)
+    # İlk ürünün linkini bul
+if first_product_tag:
+    product_link = first_product_tag.find('a')['href']
+        # Ürün linkini tam URL olarak oluştur
+    product_url = f"https://www.amazon.com{product_link}"
+    #yazar
+    
+    #fiyat
+    price_element=soup.select_one('span',{'class':'a-size-base a-color-price a-color-price'})
+    price = price_element.text if price_element else None
+    #başlık
+    title_element=soup.find('div',{'class':'a-section a-spacing-none a-text-center rpi-attribute-value rpi-iconic-attribute-text'})
+    title=title_element.text if title_element else None
+    
+    #length
+    length_element=soup.find('div',{'class':'a-section a-spacing-none a-text-center rpi-attribute-value rpi-iconic-attribute-text'})
+    length=length_element.text if length_element else None
+    
+    
+    #dil 
+    language_element=soup.find('div',{'class':'a-section a-spacing-none a-text-center rpi-attribute-value rpi-iconic-attribute-text'})
+    language=language_element.text if language_element else None
+    
+    #publisher
+    publisher_element=soup.find()
+    publisher=publisher_element.text if publisher_element else None
+    
+    #publication date
+    publication_element=soup.find()
+    publication=publication_element.text if publication_element else None
+    #dimensions
+    dimensions_element=soup.find()
+    dimensions=dimensions_element.text if dimensions_element else None
+    #ISBN-10
+    isbn10_element=soup.find()
+    isbn10=isbn10_element.text if isbn10_element else None
+    #ISBN-13
+    isbn13_element=soup.find()
+    isbn13=isbn13_element.text if isbn13_element else None
+    #images
+    images_element= soup.find('div',{'class':'a-dynamic-image-container'})
+    images=images_element.text if images_element else None
+    
+    #bookinfo
+    bookinfo_element=soup.find()
+    bookinfo=bookinfo_element.text if bookinfo_element else None
+    
+else:
+     None
+            
